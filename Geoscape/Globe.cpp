@@ -118,41 +118,45 @@ struct GlobeStaticData
 		{
 			int j = i - 120;
 
-			if (j<-66) j=-16;
+			if (j<-90) j = -18;
 			else
-			if (j<-48) j=-15;
+			if (j<-81) j = -17;
 			else
-			if (j<-33) j=-14;
+			if (j<-72) j=-16;
 			else
-			if (j<-22) j=-13;
+			if (j<-63) j=-15;
 			else
-			if (j<-15) j=-12;
+			if (j<-54) j=-14;
 			else
-			if (j<-11) j=-11;
+			if (j<-45) j=-13;
 			else
-			if (j<-9) j=-10;
+			if (j<-36) j=-12;
+			else
+			if (j<-27) j=-11;
+			else
+			if (j<-18) j=-10;
+			else
+			if (j<-9) j=-9;
 
-			if (j>120) j=19;
+			if (j>90) j=18;
 			else
-			if (j>98) j=18;
+			if (j>81) j=17;
 			else
-			if (j>86) j=17;
+			if (j>72) j=16;
 			else
-			if (j>74) j=16;
+			if (j>63) j=15;
 			else
-			if (j>54) j=15;
+			if (j>54) j=14;
 			else
-			if (j>38) j=14;
+			if (j>45) j=13;
 			else
-			if (j>26) j=13;
+			if (j>36) j=12;
 			else
-			if (j>18) j=12;
+			if (j>27) j=11;
 			else
-			if (j>13) j=11;
+			if (j>18) j=10;
 			else
-			if (j>10) j=10;
-			else
-			if (j>8) j=9;
+			if (j>9) j=9;
 
 			shade_gradient[i]= j+16;
 		}
