@@ -128,7 +128,7 @@ void MapDataSet::loadData()
 	unsigned char Door;
 	unsigned char Block_Fire;
 	unsigned char Block_Smoke;
-	unsigned char u39;
+	unsigned char Wind_Animation;
 	unsigned char TU_Walk;
 	unsigned char TU_Slide;
 	unsigned char TU_Fly;
@@ -152,7 +152,7 @@ void MapDataSet::loadData()
 	unsigned char Target_Type;
 	unsigned char Xcom_Base;
 	unsigned char u62;
-	unsigned char Wind_Animation;
+	
 	};
 	#pragma pack(pop)
 
