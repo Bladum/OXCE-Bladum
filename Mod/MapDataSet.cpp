@@ -152,6 +152,7 @@ void MapDataSet::loadData()
 	unsigned char Target_Type;
 	unsigned char Xcom_Base;
 	unsigned char u62;
+	unsigned char Wind_Animation;
 	};
 	#pragma pack(pop)
 
@@ -187,6 +188,7 @@ void MapDataSet::loadData()
 		to->setLightSource((int)mcd.Light_Source);
 		to->setArmor((int)mcd.Armor);
 		to->setFlammable((int)mcd.Flammable);
+		to->setWindAnimation((int)mcd.Wind_Animation);
 		to->setFuel((int)mcd.Fuel);
 		to->setExplosiveType((int)mcd.HE_Type);
 		to->setExplosive((int)mcd.HE_Strength);
