@@ -92,40 +92,72 @@ namespace OpenXcom
 			_txtShotType->setWordWrap(true);
 			_txtShotType->setText(tr("STR_SHOT_TYPE"));
 
-			_txtAccuracy = new Text(50, 17, 104, 66);
+			_txtAccuracy = new Text(50, 17, 64+6, 66);
 			add(_txtAccuracy);
 			_txtAccuracy->setColor(Palette::blockOffset(14)+15);
 			_txtAccuracy->setWordWrap(true);
 			_txtAccuracy->setText(tr("STR_ACCURACY_UC"));
 
-			_txtTuCost = new Text(60, 17, 158, 66);
+			_txtRange = new Text(50, 17, 96 + 6, 66);
+			add(_txtRange);
+			_txtRange->setColor(Palette::blockOffset(14) + 15);
+			_txtRange->setWordWrap(true);
+			_txtRange->setText(tr("STR_RANGE_UC"));
+
+			_txtTuCost = new Text(50, 17, 128 + 6, 66);
 			add(_txtTuCost);
 			_txtTuCost->setColor(Palette::blockOffset(14)+15);
 			_txtTuCost->setWordWrap(true);
 			_txtTuCost->setText(tr("STR_TIME_UNIT_COST"));
 
-			_lstInfo = new TextList(204, 55, 8, 82);
+			_txtEnCost = new Text(50, 17, 160 + 6, 66);
+			add(_txtEnCost);
+			_txtEnCost->setColor(Palette::blockOffset(14) + 15);
+			_txtEnCost->setWordWrap(true);
+			_txtEnCost->setText(tr("STR_ENERGY_UNIT_COST"));
+
+			_lstInfo = new TextList(204, 40, 8, 80);
 			add(_lstInfo);
 
 			_lstInfo->setColor(Palette::blockOffset(15)+4); // color for %-data!
-			_lstInfo->setColumns(3, 100, 52, 52);
-			_lstInfo->setBig();
+			_lstInfo->setColumns(5, 64, 32, 32, 32, 32);
+			//_lstInfo->setBig();
 		}
 
 		if (item->getBattleType() == BT_FIREARM)
 		{
 			int current_row = 0;
-			if (item->getCostAuto().Time>0)
+			if (item->getCostMelee().Time>0)
 			{
-				std::wstring tu = Text::formatPercentage(item->getCostAuto().Time);
+				std::wstring tu = Text::formatPercentage(item->getCostMelee().Time);
+				std::wstring eng = Text::formatPercentage(item->getCostMelee().Energy);
 				if (item->getFlatUse().Time)
 				{
 					tu.erase(tu.end() - 1);
 				}
-				_lstInfo->addRow(3,
-								 tr("STR_SHOT_TYPE_AUTO").arg(item->getAutoShots()).c_str(),
-								 Text::formatPercentage(item->getAccuracyAuto()).c_str(),
-								 tu.c_str());
+				_lstInfo->addRow(5,
+					tr("STR_SHOT_TYPE_MELEE").c_str(),
+					Text::formatPercentage(item->getAccuracyMelee()).c_str(),
+					"1",
+					tu.c_str(), 
+					eng.c_str() );
+				_lstInfo->setCellColor(current_row, 0, Palette::blockOffset(14) + 15);
+				current_row++;
+			}
+			if (item->getCostAuto().Time>0)
+			{
+				std::wstring tu = Text::formatPercentage(item->getCostAuto().Time);
+				std::wstring eng = Text::formatPercentage(item->getCostAuto().Energy);
+				if (item->getFlatUse().Time)
+				{
+					tu.erase(tu.end() - 1);
+				}
+				_lstInfo->addRow(5,
+					 tr("STR_SHOT_TYPE_AUTO").arg(item->getAutoShots()).c_str(),
+					 Text::formatPercentage(item->getAccuracyAuto()).c_str(),
+					(Text::formatNumber(item->getMinRange()) + L"-" + Text::formatNumber(item->getAutoRange())).c_str(),
+					 tu.c_str(), 
+					eng.c_str());
 				_lstInfo->setCellColor(current_row, 0, Palette::blockOffset(14)+15);
 				current_row++;
 			}
@@ -133,14 +165,17 @@ namespace OpenXcom
 			if (item->getCostSnap().Time>0)
 			{
 				std::wstring tu = Text::formatPercentage(item->getCostSnap().Time);
+				std::wstring eng = Text::formatPercentage(item->getCostSnap().Energy);
 				if (item->getFlatUse().Time)
 				{
 					tu.erase(tu.end() - 1);
 				}
-				_lstInfo->addRow(3,
-								 tr("STR_SHOT_TYPE_SNAP").c_str(),
-								 Text::formatPercentage(item->getAccuracySnap()).c_str(),
-								 tu.c_str());
+				_lstInfo->addRow(5,
+					 tr("STR_SHOT_TYPE_SNAP").c_str(),
+					 Text::formatPercentage(item->getAccuracySnap()).c_str(),
+					(Text::formatNumber(item->getMinRange()) + L"-" + Text::formatNumber(item->getSnapRange())).c_str(),
+					 tu.c_str(),
+					 eng.c_str()	 );
 				_lstInfo->setCellColor(current_row, 0, Palette::blockOffset(14)+15);
 				current_row++;
 			}
@@ -148,39 +183,45 @@ namespace OpenXcom
 			if (item->getCostAimed().Time>0)
 			{
 				std::wstring tu = Text::formatPercentage(item->getCostAimed().Time);
+				std::wstring eng = Text::formatPercentage(item->getCostAimed().Energy);
 				if (item->getFlatUse().Time)
 				{
 					tu.erase(tu.end() - 1);
 				}
-				_lstInfo->addRow(3,
-								 tr("STR_SHOT_TYPE_AIMED").c_str(),
-								 Text::formatPercentage(item->getAccuracyAimed()).c_str(),
-								 tu.c_str());
+				_lstInfo->addRow(5,
+					 tr("STR_SHOT_TYPE_AIMED").c_str(),
+					 Text::formatPercentage(item->getAccuracyAimed()).c_str(),
+					(Text::formatNumber(item->getMinRange()) + L"-" + Text::formatNumber(item->getAimRange() )).c_str(),
+					 tu.c_str(), 
+					 eng.c_str());
 				_lstInfo->setCellColor(current_row, 0, Palette::blockOffset(14)+15);
 				current_row++;
 			}
 
 			// text_info is BELOW the info table (table can have 0-3 rows)
-			int shift = (3 - current_row) * 16;
+			int shift = (4 - current_row) * 10;
 			if (ammo_data->size() == 2 && current_row <= 1)
 			{
-				shift -= (2 - current_row) * 16;
+				shift -= (2 - current_row) * 10;
 			}
-			_txtInfo = new Text((ammo_data->size()<3 ? 300 : 180), 56 + shift, 8, 138 - shift);
+			_txtInfo = new Text((ammo_data->size()<3 ? 300 : 180), 56 + shift, 8, 130 - shift);
 		}
 		else if (item->getBattleType() == BT_MELEE)
 		{
 			if (item->getCostMelee().Time > 0)
 			{
 				std::wstring tu = Text::formatPercentage(item->getCostMelee().Time);
+				std::wstring eng = Text::formatPercentage(item->getCostMelee().Energy);
 				if (item->getFlatMelee().Time)
 				{
 					tu.erase(tu.end() - 1);
 				}
-				_lstInfo->addRow(3,
+				_lstInfo->addRow(5,
 					tr("STR_SHOT_TYPE_MELEE").c_str(),
 					Text::formatPercentage(item->getAccuracyMelee()).c_str(),
-					tu.c_str());
+					"1",
+					tu.c_str(), 
+					eng.c_str());
 				_lstInfo->setCellColor(0, 0, Palette::blockOffset(14) + 15);
 			}
 
@@ -190,7 +231,7 @@ namespace OpenXcom
 		else
 		{
 			// text_info is larger and starts on top
-			_txtInfo = new Text(300, 125, 8, 67);
+			_txtInfo = new Text(300, 125, 8, 68);
 		}
 
 		add(_txtInfo);
@@ -216,7 +257,7 @@ namespace OpenXcom
 			add(_txtAmmoDamage[i]);
 			_txtAmmoDamage[i]->setColor(Palette::blockOffset(2));
 			_txtAmmoDamage[i]->setAlign(ALIGN_CENTER);
-			_txtAmmoDamage[i]->setBig();
+			//_txtAmmoDamage[i]->setBig();
 
 			_imageAmmo[i] = new Surface(32, 48, 280, 16 + i*49);
 			add(_imageAmmo[i]);
@@ -247,6 +288,15 @@ namespace OpenXcom
 					{
 						ss << L"x" << item->getShotgunPellets();
 					}
+					if (item->getExplosionRadius(NULL))
+					{
+						ss << L" r=" << item->getExplosionRadius(NULL);
+					}
+					if (item->getClipSize() > 1)
+					{
+						ss << L" c=" << item->getClipSize();
+					}
+					
 					_txtAmmoDamage[0]->setText(ss.str());
 				}
 				else
@@ -264,6 +314,14 @@ namespace OpenXcom
 							if (ammo_rule->getShotgunPellets())
 							{
 								ss << L"x" << ammo_rule->getShotgunPellets();
+							}
+							if (ammo_rule->getExplosionRadius(NULL))
+							{
+								ss << L" r=" << ammo_rule->getExplosionRadius(NULL);
+							}
+							if (ammo_rule->getClipSize() > 1)
+							{
+								ss << L" c=" << ammo_rule->getClipSize();
 							}
 							_txtAmmoDamage[i]->setText(ss.str());
 
@@ -286,6 +344,10 @@ namespace OpenXcom
 
 				ss.str(L"");ss.clear();
 				ss << item->getPower();
+				if (item->getExplosionRadius(NULL))
+				{
+					ss << L" r=" << item->getExplosionRadius(NULL);
+				}
 				_txtAmmoDamage[0]->setText(ss.str());
 				break;
 			default: break;

@@ -234,8 +234,12 @@ void ActionMenuState::init()
  */
 void ActionMenuState::addItem(BattleActionType ba, const std::string &name, int *id, SDLKey key, BattleItem *secondaryWeapon)
 {
-	std::wstring s1, s2;
+	std::wstring s1, s2, s3;
 	int acc = _action->actor->getFiringAccuracy(ba, _action->weapon, _game->getMod());
+	
+	int rng = 1;
+	int rngMin = _action->weapon->getRules()->getMinRange();
+
 	if (secondaryWeapon != 0)
 	{
 		// for display only, this action will never miss anyway (alien is unconscious, how could you miss?)
@@ -245,12 +249,33 @@ void ActionMenuState::addItem(BattleActionType ba, const std::string &name, int 
 		// this is actually important, so that we spend TUs (and other stats) correctly
 		_action->weapon = secondaryWeapon;
 	}
-	int tu = _action->actor->getActionTUs(ba, (secondaryWeapon == 0) ? _action->weapon : secondaryWeapon).Time;
 
+	int tu = _action->actor->getActionTUs(ba, (secondaryWeapon == 0) ? _action->weapon : secondaryWeapon).Time;
+	int shots = _action->weapon->getRules()->getAutoShots();
+
+	if (ba == BA_AIMEDSHOT || ba == BA_LAUNCH)
+	rng = _action->weapon->getRules()->getAimRange();
+	if (ba == BA_AUTOSHOT)
+	rng = _action->weapon->getRules()->getAutoRange();
+	if (ba == BA_SNAPSHOT)
+	rng = _action->weapon->getRules()->getSnapRange();
+	
 	if (ba == BA_THROW || ba == BA_AIMEDSHOT || ba == BA_SNAPSHOT || ba == BA_AUTOSHOT || ba == BA_LAUNCH || ba == BA_HIT || ba == BA_EXECUTE)
-		s1 = tr("STR_ACCURACY_SHORT").arg(Text::formatPercentage(acc));
-	s2 = tr("STR_TIME_UNITS_SHORT").arg(tu);
-	_actionMenu[*id]->setAction(ba, tr(name), s1, s2, tu);
+	{
+		if (shots > 1 && (ba == BA_AUTOSHOT))
+		{
+			s1 = tr("STR_ACCURACY_SHORT").arg(Text::formatPercentage(acc).append(L"x").append(Text::formatNumber(shots)));
+		}
+		else
+			s1 = tr("STR_ACCURACY_SHORT").arg(Text::formatPercentage(acc));
+	}
+	if (rng > 0)
+	{
+		s3 = tr("STR_RANGE_SHORT").arg(Text::formatNumber(rngMin).append(L"-").append(Text::formatNumber(rng)));
+	}
+
+	s2 = tr("STR_TIME_UNITS_SHORT").arg(Text::formatNumber(tu));
+	_actionMenu[*id]->setAction(ba, tr(name), s1, s2, s3, tu);
 	_actionMenu[*id]->setVisible(true);
 	_actionMenu[*id]->onKeyboardPress((ActionHandler)&ActionMenuState::btnActionMenuItemClick, key);
 	(*id)++;
