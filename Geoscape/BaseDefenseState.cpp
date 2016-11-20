@@ -38,6 +38,7 @@
 #include "../Engine/Sound.h"
 #include "../Engine/Timer.h"
 #include "../Engine/Options.h"
+#include "../Savegame/ItemContainer.h"
 
 namespace OpenXcom
 {
@@ -52,12 +53,14 @@ namespace OpenXcom
 BaseDefenseState::BaseDefenseState(Base *base, Ufo *ufo, GeoscapeState *state) : _state(state)
 {
 	_base = base;
-	_action = BDA_NONE;
+	_action = BDA_NEW;
 	_row = -1;
 	_passes = 0;
 	_attacks = 0;
 	_thinkcycles = 0;
 	_ufo = ufo;
+	_fireCount = 0;
+
 	// Create objects
 	_window = new Window(this, 320, 200, 0, 0);
 	_txtTitle = new Text(300, 17, 16, 6);
@@ -91,13 +94,18 @@ BaseDefenseState::BaseDefenseState(Base *base, Ufo *ufo, GeoscapeState *state) :
 
 	_txtInit->setText(tr("STR_BASE_DEFENSES_INITIATED"));
 
-	_lstDefenses->setColumns(3, 134, 70, 50);
+	// NAME DEFENSE FIRING 0/1 HIT 95%
+	_lstDefenses->setColumns(5, 100, 50, 45, 45, 45);
 	_gravShields = _base->getGravShields();
 	_defenses = _base->getDefenses()->size();
-	_timer = new Timer(250);
+	_timer = new Timer(500);
 	_timer->onTimer((StateHandler)&BaseDefenseState::nextStep);
 	_timer->start();
 
+	_lstDefenses->addRow(5, tr("STR_FACILITY").c_str(), tr("STR_STATUS").c_str(),
+	tr("STR_SHOTS").c_str(), tr("STR_RESULT").c_str(), tr("STR_UFO_LIFE").c_str());
+	++_row;
+	
 	_explosionCount = 0;
 }
 
@@ -116,6 +124,13 @@ void BaseDefenseState::think()
 
 void BaseDefenseState::nextStep()
 {
+	int power;
+	int chance;
+	int interval;
+	std::string ammo;
+	std::wstring dd;
+	std::wstring aa;
+	
 	if (_thinkcycles == -1)
 		return;
 
@@ -134,7 +149,7 @@ void BaseDefenseState::nextStep()
 		case BDA_DESTROY:
 			if (!_explosionCount)
 			{
-				_lstDefenses->addRow(2, tr("STR_UFO_DESTROYED").c_str(),L" ",L" ");
+				_lstDefenses->addRow(5, tr("STR_UFO_DESTROYED").c_str(), L" ", L" ", L" ", L" ");
 				++_row;
 				if (_row > 14)
 				{
@@ -154,14 +169,14 @@ void BaseDefenseState::nextStep()
 		default:
 			break;
 		}
-		if (_attacks == _defenses && _passes == _gravShields)
+		if (_attacks >= _defenses && _passes == _gravShields)
 		{
 			_action = BDA_END;
 			return;
 		}
-		else if (_attacks == _defenses && _passes < _gravShields)
+		else if (_attacks >= _defenses && _passes < _gravShields)
 		{
-			_lstDefenses->addRow(3, tr("STR_GRAV_SHIELD_REPELS_UFO").c_str(),L" ",L" ");
+			_lstDefenses->addRow(5, tr("STR_GRAV_SHIELD_REPELS_UFO").c_str(), L" ", L" ", L" ", L" ");
 			if (_row > 14)
 			{
 				_lstDefenses->scrollDown(true);
@@ -171,46 +186,116 @@ void BaseDefenseState::nextStep()
 			_attacks = 0;
 			return;
 		}
-
-
-
+		
+		// get basic facility defense parameters
 		BaseFacility* def = _base->getDefenses()->at(_attacks);
-
+		power = def->getRules()->getDefenseValue();
+		chance = def->getRules()->getHitRatio();
+		interval = def->getRules()->getFireInterval();
+		ammo = def->getRules()->getClipUsed();
+		
 		switch (_action)
 		{
-		case  BDA_NONE:
-			_lstDefenses->addRow(3, tr((def)->getRules()->getType()).c_str(),L" ",L" ");
+		case  BDA_NEW:
+
+			// MISSILE DEFENCES     FIRING   0/1    HIT!  95% 
+			_lstDefenses->addRow(5, tr((def)->getRules()->getType()).c_str(), L" ", L" ", L" ", L" ");
 			++_row;
 			_action = BDA_FIRE;
+
+			// if no more fires get fire counter from new weapon  
+			if (!_fireCount)
+			{
+				_fireCount = def->getRules()->getFireCount();
+			}
+
 			if (_row > 14)
 			{
 				_lstDefenses->scrollDown(true);
 			}
 			return;
 		case BDA_FIRE:
+
+			// CHECK AMMO   
+			if (!ammo.empty())
+			{
+				if (!_base->getStorageItems()->getItem(ammo))
+				{
+					_lstDefenses->setCellText(_row, 1, tr("STR_NO_AMMO").c_str());
+					_fireCount = 0;
+					++_attacks;
+					_action = BDA_NEW;
+					_timer->setInterval(interval);
+					return;
+				}
+				else
+				{
+					_lstDefenses->setCellText(_row, 1, tr("STR_FIRING").c_str());
+					_game->getMod()->getSound("GEO.CAT", (def)->getRules()->getFireSound())->play();
+					
+					aa = Text::formatNumber(def->getRules()->getFireCount() - _fireCount + 1) + L"/" + Text::formatNumber(def->getRules()->getFireCount());
+					_lstDefenses->setCellText(_row, 2, aa);
+					_timer->setInterval(interval);
+					_action = BDA_RESOLVE;
+					
+					// FIRE IS DONE  
+					--_fireCount;
+					// remove ammo from the inventory  
+					_base->getStorageItems()->removeItem(ammo, 1);
+					return;
+				}
+			}
+
 			_lstDefenses->setCellText(_row, 1, tr("STR_FIRING"));
 			_game->getMod()->getSound("GEO.CAT", (def)->getRules()->getFireSound())->play();
-			_timer->setInterval(333);
+			
+			// specific fire interval per weapon
+			aa = Text::formatNumber(def->getRules()->getFireCount() - _fireCount + 1) + L"/" + Text::formatNumber(def->getRules()->getFireCount());
+			_lstDefenses->setCellText(_row, 2, aa);
+			_timer->setInterval(interval);
+
+			// FIRE IS DONE  
+			--_fireCount;
 			_action = BDA_RESOLVE;
+
 			return;
 		case BDA_RESOLVE:
 			if (!RNG::percent((def)->getRules()->getHitRatio()))
 			{
-				_lstDefenses->setCellText(_row, 2, tr("STR_MISSED"));
+				_lstDefenses->setCellText(_row, 3, tr("STR_MISSED").c_str());
+				int mmm = (_ufo->getRules()->getStats().damageMax - _ufo->getDamage()) * 100 / _ufo->getRules()->getStats().damageMax;
+				_lstDefenses->setCellText(_row, 4, Text::formatPercentage(mmm));
 			}
 			else
 			{
-				_lstDefenses->setCellText(_row, 2, tr("STR_HIT"));
 				_game->getMod()->getSound("GEO.CAT", (def)->getRules()->getHitSound())->play();
-				int dmg = (def)->getRules()->getDefenseValue();
-				_ufo->setDamage(_ufo->getDamage() + (dmg / 2 + RNG::generate(0, dmg)));
+				_ufo->setDamage(_ufo->getDamage() + (RNG::generate(power / 2, power * 3 / 2)));
+				int mmm = (_ufo->getRules()->getStats().damageMax - _ufo->getDamage()) * 100 / _ufo->getRules()->getStats().damageMax;
+				_lstDefenses->setCellText(_row, 3, tr("STR_HIT").c_str());
+				_lstDefenses->setCellText(_row, 4, Text::formatPercentage(mmm));
 			}
 			if (_ufo->getStatus() == Ufo::DESTROYED)
+			{
+				++_attacks;
 				_action = BDA_DESTROY;
+				_timer->setInterval(500);
+			}
 			else
-				_action = BDA_NONE;
-			++_attacks;
-			_timer->setInterval(250);
+			{
+				// NO MORE FIRES FROM THIS WEAPON THEN GO TO NEXT WEAPON  
+				if (!_fireCount)
+				{
+					++_attacks;
+					_action = BDA_NEW;
+					_timer->setInterval(500);
+				}
+				else
+				{
+					_action = BDA_FIRE;
+					_timer->setInterval(interval);
+				}
+			}
+
 			return;
 		default:
 			break;

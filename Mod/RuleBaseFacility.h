@@ -37,6 +37,7 @@ class RuleBaseFacility
 {
 private:
 	std::string _type;
+	std::string _clip;
 	std::vector<std::string> _requires, _requiresBaseFunc, _provideBaseFunc, _forbiddenBaseFunc;
 	int _spriteShape, _spriteFacility;
 	bool _lift, _hyper, _mind, _grav;
@@ -44,6 +45,7 @@ private:
 	std::map<std::string, std::pair<int, int> > _buildCostItems;
 	int _storage, _personnel, _aliens, _crafts, _labs, _workshops, _psiLabs;
 	int _radarRange, _radarChance, _defense, _hitRatio, _fireSound, _hitSound;
+	int _fireCount, _fireInterval;
 	std::string _mapName;
 	int _listOrder, _trainingRooms;
 	int _maxAllowedPerBase;
@@ -130,6 +132,14 @@ public:
 	float getSickBayRelativeBonus() const;
 	/// Gets the prison type.
 	int getPrisonType() const;
+
+	/// Gets the facility's fire count during battle  
+	int getFireCount() const;
+	/// Gets the facility's fire interval during battle  
+	int getFireInterval() const;
+	/// Gets the facility's clip used to fire during battle  
+	std::string getClipUsed() const;
+
 };
 
 }
