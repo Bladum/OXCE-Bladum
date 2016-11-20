@@ -109,7 +109,7 @@ Map::Map(Game *game, int width, int height, int x, int y, int visibleMapHeight) 
 	_scrollKeyTimer->onTimer((SurfaceHandler)&Map::scrollKey);
 	_camera->setScrollTimer(_scrollMouseTimer, _scrollKeyTimer);
 
-	_txtAccuracy = new Text(24, 9, 0, 0);
+	_txtAccuracy = new Text(32, 48, 0, -8);
 	_txtAccuracy->setSmall();
 	_txtAccuracy->setPalette(_game->getScreen()->getPalette());
 	_txtAccuracy->setHighContrast(true);
@@ -1093,6 +1093,7 @@ void Map::drawTerrain(Surface *surface)
 							{
 								BattleAction *action = _save->getBattleGame()->getCurrentAction();
 								const RuleItem *weapon = action->weapon->getRules();
+								const RuleItem *ammoRules = action->weapon->getAmmoItem()->getRules();
 								std::ostringstream ss;
 								int accuracy = action->actor->getFiringAccuracy(action->type, action->weapon, _game->getMod());
 								int distance = _save->getTileEngine()->distance(Position (itX, itY,itZ), action->actor->getPosition());
@@ -1155,9 +1156,27 @@ void Map::drawTerrain(Surface *surface)
 								}
 								ss << accuracy;
 								ss << "%";
+												
+								// display additional damage info
+								int powBonusAmmo = ammoRules->getPowerBonus(action->actor);
+								int powBonusWep = weapon->getPowerBonus(action->actor);
+								int redAmmo = ammoRules->getPowerRangeReduction(distance);
+								int redWepo = weapon->getPowerRangeReduction(distance);
+								
+								// no power from ammo if there is no clip
+								if (weapon->getCompatibleAmmo()->empty())
+									powBonusAmmo = 0;
+
+								// total damage
+								//TODO add more factors here in the future
+								int totalDamage = powBonusWep + powBonusAmmo - redWepo - redAmmo;
+
+								ss << "\n";
+								ss << totalDamage;
+
 								_txtAccuracy->setText(Language::utf8ToWstr(ss.str()));
 								_txtAccuracy->draw();
-								_txtAccuracy->blitNShade(surface, screenPosition.x, screenPosition.y, 0);
+								_txtAccuracy->blitNShade(surface, screenPosition.x, screenPosition.y - 8, 0);
 							}
 						}
 						else if (_camera->getViewLevel() > itZ)
