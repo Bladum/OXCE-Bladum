@@ -36,6 +36,7 @@
 #include "Pathfinding.h"
 #include "TileEngine.h"
 #include "../Interface/Text.h"
+#include "ProjectileFlyBState.h"
 
 namespace OpenXcom
 {
@@ -234,11 +235,8 @@ void ActionMenuState::init()
  */
 void ActionMenuState::addItem(BattleActionType ba, const std::string &name, int *id, SDLKey key, BattleItem *secondaryWeapon)
 {
-	std::wstring s1, s2, s3;
+	std::wstring s0, s1, s2, s3, s4;
 	int acc = _action->actor->getFiringAccuracy(ba, _action->weapon, _game->getMod());
-	
-	int rng = 1;
-	int rngMin = _action->weapon->getRules()->getMinRange();
 
 	if (secondaryWeapon != 0)
 	{
@@ -250,32 +248,93 @@ void ActionMenuState::addItem(BattleActionType ba, const std::string &name, int 
 		_action->weapon = secondaryWeapon;
 	}
 
+	//weapon and its ammo
+	const RuleItem *weapon = _action->weapon->getRules();
+	const RuleItem *ammoItem;
+
+	// display additional damage info
+	int melBonusWep = weapon->getMeleeBonus(_action->actor);
+	int powBonusWep = weapon->getPowerBonus(_action->actor);
+	int melBonusAmmo, powBonusAmmo;
+
+	powBonusAmmo = 0;
+	melBonusAmmo = 0;
+
+	// no power from ammo if there is no clip
+	if (!weapon->getCompatibleAmmo()->empty())
+	{
+		ammoItem = _action->weapon->getAmmoItem()->getRules();
+		melBonusAmmo = ammoItem->getMeleeBonus(_action->actor);
+		powBonusAmmo = ammoItem->getPowerBonus(_action->actor);
+	}
+
+	// total damage
+	//TODO add more factors here in the future
+	int totalDamage;
+	totalDamage = powBonusWep + powBonusAmmo;
+	if (ba == BA_HIT && weapon->getBattleType() == BattleType::BT_FIREARM)
+		totalDamage = melBonusAmmo + melBonusWep;
+	if (ba == BA_THROW)
+		totalDamage = 0;
+
+	int rng = 1;
+	int rngMin = _action->weapon->getRules()->getMinRange();
+
 	int tu = _action->actor->getActionTUs(ba, (secondaryWeapon == 0) ? _action->weapon : secondaryWeapon).Time;
+	int en = _action->actor->getActionTUs(ba, (secondaryWeapon == 0) ? _action->weapon : secondaryWeapon).Energy;
 	int shots = _action->weapon->getRules()->getAutoShots();
 
 	if (ba == BA_AIMEDSHOT || ba == BA_LAUNCH)
-	rng = _action->weapon->getRules()->getAimRange();
+		rng = _action->weapon->getRules()->getAimRange();
 	if (ba == BA_AUTOSHOT)
-	rng = _action->weapon->getRules()->getAutoRange();
+		rng = _action->weapon->getRules()->getAutoRange();
 	if (ba == BA_SNAPSHOT)
-	rng = _action->weapon->getRules()->getSnapRange();
-	
+		rng = _action->weapon->getRules()->getSnapRange();
+
+	// name
+	s0 = tr(name);
+
+	// STANDARD WEAPONS
 	if (ba == BA_THROW || ba == BA_AIMEDSHOT || ba == BA_SNAPSHOT || ba == BA_AUTOSHOT || ba == BA_LAUNCH || ba == BA_HIT || ba == BA_EXECUTE)
 	{
-		if (shots > 1 && (ba == BA_AUTOSHOT))
+		// ACCURANCY
+		s1 = tr("STR_ACCURACY_SHORT").arg(Text::formatPercentage(acc));
+
+		// MAX THROW RANGE
+		if (ba == BA_THROW)
+			rng = ProjectileFlyBState::getMaxThrowDistance(weapon->getWeight(), _action->actor->getBaseStats()->strength, _action->actor->getPosition().z) / 16;
+
+		if (rng > 0)
+			s3 = tr("STR_RANGE_SHORT").arg(Text::formatNumber(rngMin).append(L"-").append(Text::formatNumber(rng)));
+
+		// TOTAL DAMAGE
+		if (totalDamage > 0)
 		{
-			s1 = tr("STR_ACCURACY_SHORT").arg(Text::formatPercentage(acc).append(L"x").append(Text::formatNumber(shots)));
+			if (shots > 1 && (ba == BA_AUTOSHOT))
+				s4 = tr("STR_POWER_SHORT").arg(Text::formatNumber(totalDamage).append(L"x").append(Text::formatNumber(shots)));
+			else
+				s4 = tr("STR_POWER_SHORT").arg(Text::formatNumber(totalDamage));
 		}
-		else
-			s1 = tr("STR_ACCURACY_SHORT").arg(Text::formatPercentage(acc));
 	}
-	if (rng > 0)
+
+	// PSIONICS
+	if (ba == BA_PANIC || ba == BA_MINDCONTROL)
 	{
+		// ACCURANCY
+		acc = _action->actor->getPsiAccuracy(ba, _action->weapon);
+		s1 = tr("STR_ACCURACY_SHORT").arg(Text::formatPercentage(acc));
+
+		// RANGE 
 		s3 = tr("STR_RANGE_SHORT").arg(Text::formatNumber(rngMin).append(L"-").append(Text::formatNumber(rng)));
+
+		// POWER 
+		//totalDamage = _action->actor->getBaseStats()->psiStrength;
+
+		s4 = tr("STR_POWER_SHORT").arg(Text::formatNumber(totalDamage));
 	}
 
 	s2 = tr("STR_TIME_UNITS_SHORT").arg(Text::formatNumber(tu));
-	_actionMenu[*id]->setAction(ba, tr(name), s1, s2, s3, tu);
+	_actionMenu[*id]->setAction(ba, s0, s4, s1, s2, s3, tu);
 	_actionMenu[*id]->setVisible(true);
 	_actionMenu[*id]->onKeyboardPress((ActionHandler)&ActionMenuState::btnActionMenuItemClick, key);
 	(*id)++;

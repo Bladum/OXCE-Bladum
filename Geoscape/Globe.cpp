@@ -917,6 +917,7 @@ void Globe::drawOcean()
 void Globe::drawLand()
 {
 	Sint16 x[4], y[4];
+	int aaa = 0;
 
 	for (std::list<Polygon*>::iterator i = _cacheLand.begin(); i != _cacheLand.end(); ++i)
 	{
@@ -928,6 +929,10 @@ void Globe::drawLand()
 		}
 
 		// Apply textures according to zoom and shade
+		//aaa = (*i)->getTexture();
+		//if (aaa == 1 && _game->getSavedGame()->getTime()->getDay() == 5 ) aaa = 5;
+		//drawTexturedPolygon(x, y, (*i)->getPoints(), _texture->getFrame(aaa + _zoomTexture), 0, 0);
+
 		drawTexturedPolygon(x, y, (*i)->getPoints(), _texture->getFrame((*i)->getTexture() + _zoomTexture), 0, 0);
 	}
 }

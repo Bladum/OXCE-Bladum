@@ -50,23 +50,28 @@ ActionMenuItem::ActionMenuItem(int id, Game *game, int x, int y) :
 	_frame->setSecondaryColor(actionMenu->color2);
 	_frame->setThickness(3);
 
-	_txtDescription = new Text(110, 9, 10, 6);
+	_txtDescription = new Text(70, 9, 6, 6);
 	_txtDescription->initText(big, small, lang);
 	_txtDescription->setHighContrast(true);
 	_txtDescription->setColor(actionMenu->color);
 	_txtDescription->setVisible(true);
 
-	_txtRange = new Text(55, 9, 110, 6);
+	_txtPow = new Text(50, 9, 80, 6);
+	_txtPow->initText(big, small, lang);
+	_txtPow->setHighContrast(true);
+	_txtPow->setColor(actionMenu->color);
+
+	_txtRange = new Text(50, 9, 130, 6);
 	_txtRange->initText(big, small, lang);
 	_txtRange->setHighContrast(true);
 	_txtRange->setColor(actionMenu->color);
 	
-	_txtAcc = new Text(55, 9, 160, 6);
+	_txtAcc = new Text(50, 9, 180, 6);
 	_txtAcc->initText(big, small, lang);
 	_txtAcc->setHighContrast(true);
 	_txtAcc->setColor(actionMenu->color);
 
-	_txtTU = new Text(55, 9, 215, 6);
+	_txtTU = new Text(50, 9, 230, 6);
 	_txtTU->initText(big, small, lang);
 	_txtTU->setHighContrast(true);
 	_txtTU->setColor(actionMenu->color);
@@ -80,6 +85,7 @@ ActionMenuItem::~ActionMenuItem()
 	delete _frame;
 	delete _txtDescription;
 	delete _txtRange;
+	delete _txtPow;
 	delete _txtAcc;
 	delete _txtTU;
 }
@@ -93,12 +99,13 @@ ActionMenuItem::~ActionMenuItem()
  * @param tu The timeunits value.
  */
 void ActionMenuItem::setAction(BattleActionType action, const std::wstring &description, 
-	const std::wstring &accuracy, const std::wstring &timeunits, const std::wstring &range, int tu)
+	const std::wstring &powere, const std::wstring &accuracy, const std::wstring &timeunits, const std::wstring &range, int tu)
 
 {
 	_action = action;
 	_txtDescription->setText(description);
 	_txtRange->setText(range);
+	_txtPow->setText(powere);
 	_txtAcc->setText(accuracy);
 	_txtTU->setText(timeunits);
 	_tu = tu;
@@ -134,6 +141,7 @@ void ActionMenuItem::setPalette(SDL_Color *colors, int firstcolor, int ncolors)
 	Surface::setPalette(colors, firstcolor, ncolors);
 	_frame->setPalette(colors, firstcolor, ncolors);
 	_txtDescription->setPalette(colors, firstcolor, ncolors);
+	_txtPow->setPalette(colors, firstcolor, ncolors);
 	_txtRange->setPalette(colors, firstcolor, ncolors);
 	_txtAcc->setPalette(colors, firstcolor, ncolors);
 	_txtTU->setPalette(colors, firstcolor, ncolors);
@@ -147,6 +155,7 @@ void ActionMenuItem::draw()
 	_frame->blit(this);
 	_txtDescription->blit(this);
 	_txtRange->blit(this);
+	_txtPow->blit(this);
 	_txtAcc->blit(this);
 	_txtTU->blit(this);
 }
