@@ -112,11 +112,11 @@ namespace OpenXcom
 		_txtInfo->setWordWrap(true);
 		_txtInfo->setText(tr(defs->text));
 
-		_lstInfo = new TextList(200, 42, 10, 42);
+		_lstInfo = new TextList(200, 60, 10, 42);
 		add(_lstInfo);
 
 		_lstInfo->setColor(Palette::blockOffset(13)+10);
-		_lstInfo->setColumns(2, 140, 60);
+		_lstInfo->setColumns(2, 120, 80);
 		_lstInfo->setDot(true);
 
 		_lstInfo->addRow(2, tr("STR_CONSTRUCTION_TIME").c_str(), tr("STR_DAY", facility->getBuildTime()).c_str());
@@ -136,6 +136,12 @@ namespace OpenXcom
 		{
 			ss.str(L"");ss.clear();
 			ss << facility->getDefenseValue();
+			if (facility->getFireCount() > 1)
+			{
+				ss << L" x";
+				ss << facility->getFireCount();
+			}
+
 			_lstInfo->addRow(2, tr("STR_DEFENSE_VALUE").c_str(), ss.str().c_str());
 			_lstInfo->setCellColor(3, 1, Palette::blockOffset(13)+0);
 
@@ -143,6 +149,15 @@ namespace OpenXcom
 			ss << Text::formatPercentage(facility->getHitRatio());
 			_lstInfo->addRow(2, tr("STR_HIT_RATIO").c_str(), ss.str().c_str());
 			_lstInfo->setCellColor(4, 1, Palette::blockOffset(13)+0);
+
+			if (!facility->getClipUsed().empty())
+			{
+				ss.str(L""); ss.clear();
+				ss << tr(facility->getClipUsed()).c_str();
+				_lstInfo->addRow(2, tr("STR_FACILITY_CLIP_USED").c_str(), ss.str().c_str());
+				_lstInfo->setCellColor(5, 1, Palette::blockOffset(13) + 0);
+			}
+
 		}
 		centerAllSurfaces();
 	}
