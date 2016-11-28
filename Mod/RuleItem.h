@@ -152,6 +152,8 @@ private:
 	ModScript::ReactionUnitParser::Container _reacActionScript;
 	ScriptValues<RuleItem> _scriptValues;
 
+	int _throwWeightMod;
+
 	/// Get final value of cost.
 	RuleItemUseCost getDefault(const RuleItemUseCost& a, const RuleItemUseCost& b) const;
 	/// Load bool as int from yaml.
@@ -468,6 +470,11 @@ public:
 	const ModScript::SelectItemParser::Container &getSpriteScript() const;
 	/// Gets script used calculate reaction to item action.
 	const ModScript::ReactionUnitParser::Container &getReacActionScript() const;
+
+	/// Gets throw weight for items. Some items are harder to throw regardless of their actual weight
+	int getThrowWeight() const;
+	/// Gets modifier for thrown weight for items.
+	int getThrowWeightMod() const;
 };
 
 }

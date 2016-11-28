@@ -314,7 +314,7 @@ void ActionMenuState::addItem(BattleActionType ba, const std::string &name, int 
 
 		// MAX THROW RANGE
 		if (ba == BA_THROW)
-			rng = ProjectileFlyBState::getMaxThrowDistance(weapon->getWeight(), _action->actor->getBaseStats()->strength, _action->actor->getPosition().z) / 16;
+			rng = ProjectileFlyBState::getMaxThrowDistance(weapon->getThrowWeight(), _action->actor->getBaseStats()->strength, _action->actor->getPosition().z) / 16;
 
 		if (rng > 0)
 			s3 = tr("STR_RANGE_SHORT").arg(Text::formatNumber(rngMin).append(L"-").append(Text::formatNumber(rng)));

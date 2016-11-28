@@ -59,7 +59,7 @@ RuleItem::RuleItem(const std::string &type) :
 	_meleePower(0), _specialType(-1), _vaporColor(-1), _vaporDensity(0), _vaporProbability(15),
 	_customItemPreviewIndex(0),
 	_kneelBonus(-1), _oneHandedPenalty(-1),
-	_monthlySalary(0), _monthlyMaintenance(0)
+	_monthlySalary(0), _monthlyMaintenance(0), _throwWeightMod(100)
 {
 	_accuracyMulti.setFiring();
 	_meleeMulti.setMelee();
@@ -208,6 +208,7 @@ void RuleItem::load(const YAML::Node &node, Mod *mod, int listOrder, const ModSc
 	_costSell = node["costSell"].as<int>(_costSell);
 	_transferTime = node["transferTime"].as<int>(_transferTime);
 	_weight = node["weight"].as<int>(_weight);
+	_throwWeightMod = node["throwWeightMod"].as<int>(_throwWeightMod);
 	if (node["bigSprite"])
 	{
 		_bigSprite = mod->getSpriteOffset(node["bigSprite"].as<int>(_bigSprite), "BIGOBS.PCK");
@@ -590,6 +591,24 @@ int RuleItem::getTransferTime() const
 int RuleItem::getWeight() const
 {
 	return _weight;
+}
+
+/**
+* Gets the weight of the item effective for throws.
+* @return The weight in strength units.
+*/
+int RuleItem::getThrowWeight() const
+{
+	return (int)(_weight * _throwWeightMod / 100);
+}
+
+/**
+* Gets the modifier for weight of the item effective for throws.
+* @return The weight in strength units.
+*/
+int RuleItem::getThrowWeightMod() const
+{
+	return  _throwWeightMod;
 }
 
 /**

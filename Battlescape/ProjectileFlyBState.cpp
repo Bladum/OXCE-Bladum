@@ -702,7 +702,7 @@ bool ProjectileFlyBState::validThrowRange(BattleAction *action, Position origin,
 	}
 	int offset = 2;
 	int zd = (origin.z)-((action->target.z * 24 + offset) - target->getTerrainLevel());
-	int weight = action->weapon->getRules()->getWeight();
+	int weight = action->weapon->getRules()->getThrowWeight( );
 	if (action->weapon->getAmmoItem() && action->weapon->getAmmoItem() != action->weapon)
 	{
 		weight += action->weapon->getAmmoItem()->getRules()->getWeight();
