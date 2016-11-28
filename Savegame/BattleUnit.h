@@ -358,7 +358,7 @@ public:
 	/// Gets the item from left hand.
 	BattleItem *getLeftHandWeapon() const;
 	/// Reloads righthand weapon if needed.
-	bool checkAmmo();
+	bool checkAmmo(BattleItem *item = nullptr);
 	/// Check if this unit is in the exit area
 	bool isInExitArea(SpecialTileType stt = START_POINT) const;
 	/// Gets the unit height taking into account kneeling/standing.

@@ -141,6 +141,7 @@ ActionMenuState::ActionMenuState(BattleAction *action, int x, int y) : _action(a
 
 	if (weapon->getBattleType() == BT_FIREARM)
 	{
+
 		if (weapon->getWaypoints() != 0 || (_action->weapon->getAmmoItem() && _action->weapon->getAmmoItem()->getRules()->getWaypoints() != 0))
 		{
 			addItem(BA_LAUNCH, "STR_LAUNCH_MISSILE", &id, Options::keyBattleActionItem1);
@@ -174,6 +175,12 @@ ActionMenuState::ActionMenuState(BattleAction *action, int x, int y) : _action(a
 		{
 			addItem(BA_HIT, "STR_HIT_MELEE", &id, Options::keyBattleActionItem4);
 		}
+	}
+
+	// RELOAD BUTTON
+	if (_action->weapon->needsAmmo() && (_action->weapon->getAmmoItem() == 0 || (_action->weapon->getAmmoItem()->getAmmoQuantity() < _action->weapon->getAmmoItem()->getRules()->getClipSize())))
+	{
+		addItem(BA_RELOAD, "STR_RELOAD", &id, Options::keyBattleReload);
 	}
 
 	// special items
@@ -263,9 +270,14 @@ void ActionMenuState::addItem(BattleActionType ba, const std::string &name, int 
 	// no power from ammo if there is no clip
 	if (!weapon->getCompatibleAmmo()->empty())
 	{
-		ammoItem = _action->weapon->getAmmoItem()->getRules();
-		melBonusAmmo = ammoItem->getMeleeBonus(_action->actor);
-		powBonusAmmo = ammoItem->getPowerBonus(_action->actor);
+		BattleItem *tempItem = _action->weapon->getAmmoItem();
+
+		if (tempItem != 0)
+		{
+			ammoItem = tempItem->getRules();
+			melBonusAmmo = ammoItem->getMeleeBonus(_action->actor);
+			powBonusAmmo = ammoItem->getPowerBonus(_action->actor);
+		}
 	}
 
 	// total damage
@@ -331,6 +343,15 @@ void ActionMenuState::addItem(BattleActionType ba, const std::string &name, int 
 		//totalDamage = _action->actor->getBaseStats()->psiStrength;
 
 		s4 = tr("STR_POWER_SHORT").arg(Text::formatNumber(totalDamage));
+	}
+
+	// RELOAD
+	if (ba == BA_RELOAD)
+	{
+		if (_action->weapon->getAmmoItem())
+		{
+			tu = _action->weapon->getRules()->getTULoad();
+		}
 	}
 
 	s2 = tr("STR_TIME_UNITS_SHORT").arg(Text::formatNumber(tu));
@@ -567,6 +588,25 @@ void ActionMenuState::btnActionMenuItemClick(Action *action)
 				newHitLog = true;
 			}
 			_game->popState();
+		}
+		else if (_action->type == BA_RELOAD)
+		{
+			// check beforehand if we have enough time units
+			if (!_action->haveTU(&_action->result))
+			{
+				//nothing
+			}
+			else 
+			{
+				
+				if( _action->actor->checkAmmo(_action->weapon ) )
+					_action->result = "STR_WEAPON_RELOADED";
+				else
+					_action->result = "STR_WEAPON_NOT_RELOADED";
+								
+			}
+			_game->popState();
+			
 		}
 		else if (_action->type == BA_EXECUTE)
 		{

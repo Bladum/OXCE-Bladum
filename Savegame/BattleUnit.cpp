@@ -1409,6 +1409,9 @@ RuleItemUseCost BattleUnit::getActionTUs(BattleActionType actionType, const Rule
 			case BA_PANIC:
 				cost = item->getCostPanic();
 				break;
+			case BA_RELOAD:
+				cost = item->getTULoad();
+				break;
 			default:
 				break;
 		}
@@ -2316,20 +2319,15 @@ BattleItem *BattleUnit::getLeftHandWeapon() const
  * Check if we have ammo and reload if needed (used for AI).
  * @return Do we have ammo?
  */
-bool BattleUnit::checkAmmo()
+bool BattleUnit::checkAmmo(BattleItem *item)
 {
-	BattleItem *list[2] =
+	// RELOAD JUST ONE WEAPON
+	if (item != nullptr)
 	{
-		getRightHandWeapon(),
-		getLeftHandWeapon(),
-	};
-
-	for (int i = 0; i < 2; ++i)
-	{
-		BattleItem *weapon = list[i];
+		BattleItem *weapon = item;
 		if (!weapon || weapon->getAmmoItem() != 0 || weapon->getRules()->getBattleType() == BT_MELEE)
 		{
-			continue;
+			return false;
 		}
 
 		// we have a non-melee weapon with no ammo and 15 or more TUs - we might need to look for ammo then
@@ -2339,7 +2337,7 @@ bool BattleUnit::checkAmmo()
 
 		if (tuMove < 0)
 		{
-			continue;
+			return false;
 		}
 
 		for (std::vector<BattleItem*>::iterator i = getInventory()->begin(); i != getInventory()->end(); ++i)
@@ -2365,6 +2363,59 @@ bool BattleUnit::checkAmmo()
 			ammo->moveToOwner(0);
 
 			return true;
+		}
+	}
+	// RELOAD ALL WEAPONS
+	else
+	{
+		BattleItem *list[2] =
+		{
+			getRightHandWeapon(),
+			getLeftHandWeapon(),
+		};
+
+		for (int i = 0; i < 2; ++i)
+		{
+			BattleItem *weapon = list[i];
+			if (!weapon || weapon->getAmmoItem() != 0 || weapon->getRules()->getBattleType() == BT_MELEE)
+			{
+				continue;
+			}
+
+			// we have a non-melee weapon with no ammo and 15 or more TUs - we might need to look for ammo then
+			BattleItem *ammo = 0;
+			int tuCost = weapon->getRules()->getTULoad();
+			int tuMove = getTimeUnits() - tuCost;
+
+			if (tuMove < 0)
+			{
+				continue;
+			}
+
+			for (std::vector<BattleItem*>::iterator i = getInventory()->begin(); i != getInventory()->end(); ++i)
+			{
+				for (const std::string &s : *weapon->getRules()->getCompatibleAmmo())
+				{
+					if (s == (*i)->getRules()->getType())
+					{
+						int tuTemp = (*i)->getSlot()->getType() != INV_HAND ? (*i)->getSlot()->getCost(weapon->getSlot()) : 0;
+						if (tuTemp < tuMove)
+						{
+							tuMove = tuTemp;
+							ammo = (*i);
+						}
+						continue;
+					}
+				}
+			}
+
+			if (ammo && spendTimeUnits(tuCost + tuMove))
+			{
+				weapon->setAmmoItem(ammo);
+				ammo->moveToOwner(0);
+
+				return true;
+			}
 		}
 	}
 	return false;

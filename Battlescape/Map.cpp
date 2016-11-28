@@ -1093,7 +1093,7 @@ void Map::drawTerrain(Surface *surface)
 							{
 								BattleAction *action = _save->getBattleGame()->getCurrentAction();
 								const RuleItem *weapon = action->weapon->getRules();
-								const RuleItem *ammoRules = action->weapon->getAmmoItem()->getRules();
+								const RuleItem *ammoItem; 
 								std::ostringstream ss;
 								int accuracy = action->actor->getFiringAccuracy(action->type, action->weapon, _game->getMod());
 								int distance = _save->getTileEngine()->distance(Position (itX, itY,itZ), action->actor->getPosition());
@@ -1158,18 +1158,34 @@ void Map::drawTerrain(Surface *surface)
 								ss << "%";
 												
 								// display additional damage info
-								int powBonusAmmo = ammoRules->getPowerBonus(action->actor);
+								int melBonusWep = weapon->getMeleeBonus(action->actor);
 								int powBonusWep = weapon->getPowerBonus(action->actor);
-								int redAmmo = ammoRules->getPowerRangeReduction(distance);
-								int redWepo = weapon->getPowerRangeReduction(distance);
-								
+								int melBonusAmmo, powBonusAmmo;
+
+								powBonusAmmo = 0;
+								melBonusAmmo = 0;
+
 								// no power from ammo if there is no clip
-								if (weapon->getCompatibleAmmo()->empty())
-									powBonusAmmo = 0;
+								if (!weapon->getCompatibleAmmo()->empty())
+								{
+									BattleItem *tempItem = action->weapon->getAmmoItem();
+
+									if (tempItem != 0)
+									{
+										ammoItem = tempItem->getRules();
+										melBonusAmmo = ammoItem->getMeleeBonus(action->actor);
+										powBonusAmmo = ammoItem->getPowerBonus(action->actor);
+									}
+								}
 
 								// total damage
 								//TODO add more factors here in the future
-								int totalDamage = powBonusWep + powBonusAmmo - redWepo - redAmmo;
+								int totalDamage;
+								totalDamage = powBonusWep + powBonusAmmo;
+								if (action->type == BA_HIT && weapon->getBattleType() == BattleType::BT_FIREARM)
+									totalDamage = melBonusAmmo + melBonusWep;
+								if (action->type == BA_THROW)
+									totalDamage = 0;
 
 								ss << "\n";
 								ss << totalDamage;
