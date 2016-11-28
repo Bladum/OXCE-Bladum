@@ -46,7 +46,7 @@ private:
 	Text *_txtItem, *_txtAmmo, *_txtWeight, *_txtTus, *_txtFiringAcc, *_txtThrowingAcc, *_txtMeleeAcc, *_txtPsi;
 	TextEdit *_txtName;
 	TextEdit *_btnQuickSearch;
-	BattlescapeButton *_btnOk, *_btnPrev, *_btnNext, *_btnUnload, *_btnGround, *_btnRank;
+	BattlescapeButton *_btnOk, *_btnPrev, *_btnNext, *_btnUnload, *_btnGround, *_btnRank, *_btnArmour;
 	BattlescapeButton *_btnCreateTemplate, *_btnApplyTemplate;
 	Surface *_selAmmo;
 	Inventory *_inv;
@@ -126,6 +126,9 @@ public:
 	void txtTooltipIn(Action *action);
 	/// Handler for hiding tooltip.
 	void txtTooltipOut(Action *action);
+
+	///  handler for showing item armour info
+	void invMouseOverArmour(Action *);
 
 private:
 	/// Update the visibility and icons for the template buttons.

@@ -102,6 +102,8 @@ InventoryState::InventoryState(bool tu, BattlescapeState *parent, Base *base) : 
 	_btnUnload = new BattlescapeButton(32, 25, 288, 32);
 	_btnGround = new BattlescapeButton(32, 15, 289, 137);
 	_btnRank = new BattlescapeButton(26, 23, 0, 0);
+	_btnArmour = new BattlescapeButton(64, 90, 50, 54);
+
 	_btnCreateTemplate = new BattlescapeButton(32, 22, _templateBtnX, _createTemplateBtnY);
 	_btnApplyTemplate = new BattlescapeButton(32, 22, _templateBtnX, _applyTemplateBtnY);
 	_selAmmo = new Surface(RuleInventory::HAND_W * RuleInventory::SLOT_W, RuleInventory::HAND_H * RuleInventory::SLOT_H, 272, 88);
@@ -133,6 +135,7 @@ InventoryState::InventoryState(bool tu, BattlescapeState *parent, Base *base) : 
 	add(_btnUnload, "buttonUnload", "inventory", _bg);
 	add(_btnGround, "buttonGround", "inventory", _bg);
 	add(_btnRank, "rank", "inventory", _bg);
+	add(_btnArmour, "buttonOK", "inventory", _bg);
 	add(_btnCreateTemplate, "buttonCreate", "inventory", _bg);
 	add(_btnApplyTemplate, "buttonApply", "inventory", _bg);
 	add(_selAmmo);
@@ -145,8 +148,6 @@ InventoryState::InventoryState(bool tu, BattlescapeState *parent, Base *base) : 
 	}
 
 	centerAllSurfaces();
-
-
 
 	_txtName->setBig();
 	_txtName->setHighContrast(true);
@@ -170,7 +171,7 @@ InventoryState::InventoryState(bool tu, BattlescapeState *parent, Base *base) : 
 	_txtAmmo->setAlign(ALIGN_CENTER);
 	_txtAmmo->setHighContrast(true);
 
-	_btnOk->onMouseClick((ActionHandler)&InventoryState::btnOkClick);
+		_btnOk->onMouseClick((ActionHandler)&InventoryState::btnOkClick);
 	_btnOk->onKeyboardPress((ActionHandler)&InventoryState::btnOkClick, Options::keyCancel);
 	_btnOk->onKeyboardPress((ActionHandler)&InventoryState::btnOkClick, Options::keyBattleInventory);
 	_btnOk->onKeyboardPress((ActionHandler)&GeoscapeState::btnUfopaediaClick, Options::keyGeoUfopedia);
@@ -203,6 +204,11 @@ InventoryState::InventoryState(bool tu, BattlescapeState *parent, Base *base) : 
 	_btnGround->setTooltip("STR_SCROLL_RIGHT");
 	_btnGround->onMouseIn((ActionHandler)&InventoryState::txtTooltipIn);
 	_btnGround->onMouseOut((ActionHandler)&InventoryState::txtTooltipOut);
+
+	_btnArmour->onMouseClick((ActionHandler)&InventoryState::btnArmorClick);
+	_btnArmour->setTooltip("Click to change armour");
+	_btnArmour->onMouseOver((ActionHandler)&InventoryState::invMouseOverArmour);
+	_btnArmour->onMouseOut((ActionHandler)&InventoryState::invMouseOut);
 
 	_btnRank->onMouseClick((ActionHandler)&InventoryState::btnRankClick);
 	_btnRank->setTooltip("STR_UNIT_STATS");
@@ -801,6 +807,7 @@ void InventoryState::btnPrevClick(Action *)
 	{
 		_battleGame->selectPreviousPlayerUnit(false, false, true);
 	}
+
 	init();
 }
 
@@ -822,6 +829,7 @@ void InventoryState::btnNextClick(Action *)
 	{
 		_battleGame->selectNextPlayerUnit(false, false, true);
 	}
+
 	init();
 }
 
@@ -1148,6 +1156,30 @@ void InventoryState::onAutoequip(Action *)
 void InventoryState::invClick(Action *act)
 {
 	updateStats();
+}
+
+/**
+* Shows item info.
+* @param action Pointer to an action.
+*/
+void InventoryState::invMouseOverArmour(Action *)
+{
+	Soldier *sol = _battleGame->getSelectedUnit()->getGeoscapeSoldier();
+	if (sol)
+	{
+		Armor *arm = sol->getArmor();
+		if (arm)
+		{
+			int weight = arm->getWeight();
+			std::wostringstream ss;
+			ss << tr(arm->getType()).c_str();
+			ss << L" [";
+			ss << weight;
+			ss << L"]";
+			_txtItem->setText(ss.str().c_str());
+		}
+	}
+	return;
 }
 
 /**
