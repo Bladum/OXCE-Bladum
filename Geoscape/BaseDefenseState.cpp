@@ -106,6 +106,7 @@ BaseDefenseState::BaseDefenseState(Base *base, Ufo *ufo, GeoscapeState *state) :
 	tr("STR_SHOTS").c_str(), tr("STR_RESULT").c_str(), tr("STR_UFO_LIFE").c_str());
 	++_row;
 	
+	_ufoDamage = 0;
 	_explosionCount = 0;
 }
 
@@ -271,12 +272,14 @@ void BaseDefenseState::nextStep()
 				_game->getMod()->getSound("GEO.CAT", (def)->getRules()->getHitSound())->play();
 				_ufo->setDamage(_ufo->getDamage() + (RNG::generate(power / 2, power * 3 / 2)));
 				int mmm = (_ufo->getRules()->getStats().damageMax - _ufo->getDamage()) * 100 / _ufo->getRules()->getStats().damageMax;
+				_ufoDamage = mmm;
 				_lstDefenses->setCellText(_row, 3, tr("STR_HIT").c_str());
 				_lstDefenses->setCellText(_row, 4, Text::formatPercentage(mmm));
 			}
 			if (_ufo->getStatus() == Ufo::DESTROYED)
 			{
 				++_attacks;
+				
 				_action = BDA_DESTROY;
 				_timer->setInterval(500);
 			}

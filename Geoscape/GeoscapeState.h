@@ -150,7 +150,7 @@ public:
 	/// Process a mission site
 	bool processMissionSite(MissionSite *site) const;
 	/// Handles base defense
-	void handleBaseDefense(Base *base, Ufo *ufo);
+	void handleBaseDefense(Base *base, Ufo *ufo, int ufoDamage = 0);
 	/// Update the resolution settings, we just resized the window.
 	void resize(int &dX, int &dY);
 private:

@@ -107,7 +107,7 @@ private:
 	/// Runs necessary checks before physically setting the position.
 	bool canPlaceXCOMUnit(Tile *tile);
 	/// Deploys the aliens, according to the alien deployment rules.
-	void deployAliens(const AlienDeployment *deployment);
+	void deployAliens(const AlienDeployment *deployment, int ufoDamage = 0);
 	/// Spawns civilians on a terror mission.
 	void deployCivilians(int max);
 	/// Finds a spot near a friend to spawn at.
@@ -162,7 +162,7 @@ public:
 	/// Sets the terrain.
 	void setTerrain(RuleTerrain *terrain);
 	/// Runs the generator.
-	void run();
+	void run( int ufoDamage = 0);
 	/// Sets up the next stage (for Cydonia/TFTD missions).
 	void nextStage();
 	/// Generates an inventory battlescape.

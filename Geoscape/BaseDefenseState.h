@@ -50,6 +50,7 @@ private:
 	Timer *_timer;
 	int _fireCount;
 	GeoscapeState *_state;
+	int _ufoDamage;
 public:
 	/// Creates the Base Defense state.
 	BaseDefenseState(Base *base, Ufo *ufo, GeoscapeState *state);

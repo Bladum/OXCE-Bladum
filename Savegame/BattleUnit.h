@@ -467,6 +467,8 @@ public:
 	int getAggroSound() const;
 	/// Sets the unit's energy level.
 	void setEnergy(int energy);
+	/// Sets the unit's health level.
+	void setHealth(int health);
 	/// Get the faction that killed this unit.
 	UnitFaction killedBy() const;
 	/// Set the faction that killed this unit.

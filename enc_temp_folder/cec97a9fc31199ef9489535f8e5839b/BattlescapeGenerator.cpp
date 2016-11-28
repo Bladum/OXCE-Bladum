@@ -1098,9 +1098,7 @@ void BattlescapeGenerator::deployAliens(const AlienDeployment *deployment, int u
 
 	// FOR TEST
 	ufoDamage = 50;
-
-	// SPLIT UFO DAMAGE INTO 3 COMPONENTS
-	ufoDamage = ufoDamage / 3;
+	ufoDamage = ufoDamage / 5;
 
 	// race defined by deployment if there is one.
 	if (deployment->getRace() != "" && _game->getSavedGame()->getMonthsPassed() > -1)
@@ -1187,12 +1185,12 @@ void BattlescapeGenerator::deployAliens(const AlienDeployment *deployment, int u
 					}
 				}
 
-				// KILL UNIT ON THE GROUND AND LEAVE THE CORPSE
+				// KILL UNIT ON THE GROUND AND LEAVE THE BODY
 				if (ufoDamage > RNG::generate(0, 99))
 				{
 					unit->kill();
 				}
-				// DO SOMETHING ELSE ON THE GROUND DURING BATTLE
+				// DO SOMETHING ELSE ON THE GROUND
 				else if (ufoDamage > RNG::generate(0, 99) )
 				{
 					// DAMAGED & PANICKED UNIT ON THE GROUND

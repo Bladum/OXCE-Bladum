@@ -2281,7 +2281,7 @@ int GeoscapeState::getFirstFreeDogfightSlot()
  * @param base Base to defend.
  * @param ufo Ufo attacking base.
  */
-void GeoscapeState::handleBaseDefense(Base *base, Ufo *ufo)
+void GeoscapeState::handleBaseDefense(Base *base, Ufo *ufo, int ufoDamaged )
 {
 	// Whatever happens in the base defense, the UFO has finished its duty
 	ufo->setStatus(Ufo::DESTROYED);
@@ -2295,7 +2295,7 @@ void GeoscapeState::handleBaseDefense(Base *base, Ufo *ufo)
 		bgen.setBase(base);
 		bgen.setAlienCustomDeploy(_game->getMod()->getDeployment(ufo->getCraftStats().missionCustomDeploy));
 		bgen.setAlienRace(ufo->getAlienRace());
-		bgen.run();
+		bgen.run( ufoDamaged );
 		_pause = true;
 		_game->pushState(new BriefingState(0, base));
 	}
