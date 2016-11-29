@@ -138,7 +138,9 @@ MonthlyCostsState::MonthlyCostsState(Base *base) : _base(base)
 			{
 				name = "STR_SOLDIERS";
 			}
-			_lstSalaries->addRow(4, tr(name).c_str(), Text::formatFunding(soldier->getSalaryCost()).c_str(), ss4.str().c_str(), Text::formatFunding(_base->getSoldierCount(*i) * soldier->getSalaryCost()).c_str());
+			_lstSalaries->addRow(4, tr(name).c_str(), 
+				Text::formatFunding(soldier->getSalaryCost()).c_str(), ss4.str().c_str(), 
+				Text::formatFunding(_base->getSoldierCount(*i) * soldier->getSalaryCost()).c_str());
 		}
 	}
 	std::wostringstream ss5;
