@@ -18,16 +18,24 @@
  */
 #include "ResearchProject.h"
 #include "../Mod/RuleResearch.h"
+#include "../Engine/RNG.h"
 
 namespace OpenXcom
 {
-const float PROGRESS_LIMIT_UNKNOWN = 0.333f;
-const float PROGRESS_LIMIT_POOR = 0.008f;
-const float PROGRESS_LIMIT_AVERAGE = 0.14f;
-const float PROGRESS_LIMIT_GOOD = 0.26f;
+const int PROGRESS_LIMIT_UNKNOWN = 20;
+const int PROGRESS_LIMIT_POOR = 40;
+const int PROGRESS_LIMIT_AVERAGE = 60;
+const int PROGRESS_LIMIT_GOOD = 80;
+
+const int BREAKTHROUGHT_NONE = 10;		// 10% = 0
+const int BREAKTHROUGHT_HALF = 30;		// 20% = 50%
+const int BREAKTHROUGHT_NORMAL = 70;	// 40% = 100%	
+const int BREAKTHROUGHT_DOUBLE = 90;	// 20% = 200%
+const int BREAKTHROUGHT_QUAD = 100;		// 10% = 400%
 
 ResearchProject::ResearchProject(RuleResearch * p, int c) : _project(p), _assigned(0), _spent(0), _cost(c)
 {
+
 }
 
 /**
@@ -36,7 +44,21 @@ ResearchProject::ResearchProject(RuleResearch * p, int c) : _project(p), _assign
  */
 bool ResearchProject::step()
 {
-	_spent += _assigned;
+	int progressToday = _assigned;
+
+	int rand = RNG::generate(0, 99);
+	if (rand < BREAKTHROUGHT_NONE)
+		progressToday = 0;
+	else if (rand < BREAKTHROUGHT_HALF)
+		progressToday = (int)(progressToday * 0.5f);
+	else if (rand < BREAKTHROUGHT_NORMAL)
+		progressToday = progressToday;
+	else if (rand < BREAKTHROUGHT_DOUBLE)
+		progressToday = progressToday * 2;
+	else if (rand < BREAKTHROUGHT_QUAD)
+		progressToday = progressToday * 4;
+
+	_spent += progressToday;
 	if (_spent >= getCost())
 	{
 		return true;
@@ -134,7 +156,14 @@ YAML::Node ResearchProject::save() const
  */
 std::string ResearchProject::getResearchProgress() const
 {
-	float progress = (float)getSpent() / getRules()->getCost();
+	int progress = (int) ( getSpent() * 100 / getRules()->getCost() );	
+	
+	// DISPLAY PROGRESS AS PERCENT
+	std::string ddd = std::to_string( progress ).c_str();
+	ddd += "%";
+	return ddd;
+	
+	// DISPLAY PROGRESS AS TEXT 
 	if (getAssigned() == 0)
 	{
 		return "STR_NONE";
@@ -143,24 +172,19 @@ std::string ResearchProject::getResearchProgress() const
 	{
 		return "STR_UNKNOWN";
 	}
-	else
+	else if (progress < PROGRESS_LIMIT_POOR)
 	{
-		float rating = (float)getAssigned();
-		rating /= getRules()->getCost();
-		if (rating < PROGRESS_LIMIT_POOR)
-		{
-			return "STR_POOR";
-		}
-		else if (rating < PROGRESS_LIMIT_AVERAGE)
-		{
-			return "STR_AVERAGE";
-		}
-		else if (rating < PROGRESS_LIMIT_GOOD)
-		{
-			return "STR_GOOD";
-		}
-		return "STR_EXCELLENT";
+		return "STR_POOR";
 	}
+	else if (progress < PROGRESS_LIMIT_AVERAGE)
+	{
+		return "STR_AVERAGE";
+	}
+	else if (progress < PROGRESS_LIMIT_GOOD)
+	{
+		return "STR_GOOD";
+	}
+	return "STR_EXCELLENT";
 }
 
 }
