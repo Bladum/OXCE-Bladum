@@ -40,7 +40,7 @@ struct SortFunctor;
 class SoldiersState : public State
 {
 private:
-	TextButton *_btnOk, *_btnPsiTraining, *_btnTraining, *_btnMemorial;
+	TextButton *_btnOk, *_btnPsiTraining, *_btnTraining, *_btnMemorial, *_btnInventory;
 	Window *_window;
 	Text *_txtTitle, *_txtName, *_txtRank, *_txtCraft;
 	ComboBox *_cbxSortBy;

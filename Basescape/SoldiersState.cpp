@@ -56,6 +56,15 @@ SoldiersState::SoldiersState(Base *base) : _base(base), _origSoldierOrder(*_base
 
 	// Create objects
 	_window = new Window(this, 320, 200, 0, 0);
+	
+	// CREATE BUTTONS
+	_btnMemorial = new TextButton(60, 16, 6, 176);
+	_btnPsiTraining = new TextButton(60, 16, 68, 176);
+	_btnTraining = new TextButton(60, 16, 130, 176);
+	_btnInventory = new TextButton(60, 16, 192, 176);
+	_btnOk = new TextButton(60, 16, 254, 176);
+	
+	/*
 	if (isPsiBtnVisible)
 	{
 		if (isTrnBtnVisible)
@@ -87,6 +96,8 @@ SoldiersState::SoldiersState(Base *base) : _base(base), _origSoldierOrder(*_base
 		_btnTraining = new TextButton(96, 16, 112, 176);
 		_btnMemorial = new TextButton(148, 16, 8, 176);
 	}
+	*/
+
 	_txtTitle = new Text(168, 17, 16, 8);
 	_cbxSortBy = new ComboBox(this, 120, 16, 192, 8, false);
 	_txtName = new Text(114, 9, 16, 32);
@@ -102,6 +113,7 @@ SoldiersState::SoldiersState(Base *base) : _base(base), _origSoldierOrder(*_base
 	add(_btnPsiTraining, "button", "soldierList");
 	add(_btnTraining, "button", "soldierList");
 	add(_btnMemorial, "button", "soldierList");
+	add(_btnInventory, "button", "soldierList");
 	add(_txtTitle, "text1", "soldierList");
 	add(_txtName, "text2", "soldierList");
 	add(_txtRank, "text2", "soldierList");
@@ -126,6 +138,9 @@ SoldiersState::SoldiersState(Base *base) : _base(base), _origSoldierOrder(*_base
 	_btnTraining->setText(tr("STR_TRAINING"));
 	_btnTraining->onMouseClick((ActionHandler)&SoldiersState::btnTrainingClick);
 	_btnTraining->setVisible(isTrnBtnVisible);
+
+	_btnInventory->setText(tr("STR_INVENTORY"));
+	_btnInventory->onMouseClick((ActionHandler)&SoldiersState::btnInventoryClick);
 
 	_btnMemorial->setText(tr("STR_MEMORIAL"));
 	_btnMemorial->onMouseClick((ActionHandler)&SoldiersState::btnMemorialClick);
