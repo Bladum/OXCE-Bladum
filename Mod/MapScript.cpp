@@ -26,7 +26,8 @@
 namespace OpenXcom
 {
 
-MapScript::MapScript() : _type(MSC_UNDEFINED), _sizeX(1), _sizeY(1), _sizeZ(0), _executionChances(100), _executions(1), _cumulativeFrequency(0), _label(0), _direction(MD_NONE), _tunnelData(0)
+MapScript::MapScript() : _type(MSC_UNDEFINED), _sizeX(1), _sizeY(1), _sizeZ(0), _executionChances(100), 
+	_executions(1), _cumulativeFrequency(0), _label(0), _direction(MD_NONE), _tunnelData(0)
 {
 }
 
@@ -68,6 +69,8 @@ void MapScript::load(const YAML::Node& node)
 			_type = MSC_FILLAREA;
 		else if (command == "checkBlock")
 			_type = MSC_CHECKBLOCK;
+		else if (command == "explode")
+			_type = MSC_EXPLODE;
 		else if (command == "removeBlock")
 			_type = MSC_REMOVE;
 		else if (command == "resize")

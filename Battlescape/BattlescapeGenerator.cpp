@@ -1952,6 +1952,7 @@ void BattlescapeGenerator::generateMap(const std::vector<MapScript*> *script)
 			for (int j = 0; j < command->getExecutions(); ++j)
 			{
 				int x, y;
+				Position pos = Position();
 				MapBlock *block = 0;
 				switch (command->getType())
 				{
@@ -2094,6 +2095,31 @@ void BattlescapeGenerator::generateMap(const std::vector<MapScript*> *script)
 					break;
 				case MSC_REMOVE:
 					success = removeBlocks(command);
+					break;
+				case MSC_EXPLODE:
+
+					// run some random explosions on the battle scape
+					for (std::vector<SDL_Rect*>::const_iterator k = command->getRects()->begin(); k != command->getRects()->end(); ++k)
+					{
+						int power, chance, typeExp, counter, powerTemp;
+						power = (*k)->x;
+						chance = (*k)->y;
+						typeExp = (*k)->w;
+						counter = (*k)->h;
+						for (size_t w = 0; w < counter; w++)
+						{
+							if (chance > RNG::generate(0, 99))
+							{
+								pos.x = RNG::generate(0, _mapsize_x) * 16;
+								pos.y = RNG::generate(0, _mapsize_y) * 16;
+								pos.z = 12;
+
+								powerTemp = (int)(RNG::generate(power * 1 / 2, power * 3 / 2));
+								_save->getTileEngine()->explode(pos, powerTemp, _save->getMod()->getDamageType((ItemDamageType)typeExp), 10, 0, 0);
+							}
+						}
+					}	
+
 					break;
 				case MSC_RESIZE:
 					if (_save->getMissionType() == "STR_BASE_DEFENSE")
