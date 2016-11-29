@@ -62,6 +62,8 @@ private:
 	int _sprite, _marker;
 	int _power, _range, _score, _reload, _breakOffTime, _missionScore;
 	int _fireSound;
+	int _accuracy;
+	std::vector<std::string> _requires;
 	RuleTerrain *_battlescapeTerrainData;
 	RuleUfoStats _stats;
 	std::map<std::string, RuleUfoStats> _statsRaceBonus;
@@ -107,6 +109,9 @@ public:
 	int getSightRange() const;
 	/// Gets the UFO's mission score.
 	int getMissionScore() const;
+
+	int getAccuracy() const;
+	const std::vector<std::string> &getRequirements() const;
 };
 
 }

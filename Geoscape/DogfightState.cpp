@@ -57,6 +57,8 @@
 namespace OpenXcom
 {
 
+const int VISUAL_MAX_RANGE = 15;	//15KM to see UFO VISUALLY
+
 // UFO blobs graphics ...
 const int DogfightState::_ufoBlobs[8][13][13] =
 {
@@ -856,7 +858,8 @@ void DogfightState::update()
 		_currentDist += distanceChange;
 
 		std::wostringstream ss;
-		ss << _currentDist;
+		ss << (int)(_currentDist / 8);
+		ss << L" KM";
 		_txtDistance->setText(ss.str());
 
 		// Move projectiles and check for hits.
@@ -1317,8 +1320,8 @@ void DogfightState::ufoFireWeapon()
 	setStatus("STR_UFO_RETURN_FIRE");
 	CraftWeaponProjectile *p = new CraftWeaponProjectile();
 	p->setType(CWPT_PLASMA_BEAM);
-	p->setAccuracy(60);
-	p->setDamage(_ufo->getRules()->getWeaponPower());
+	p->setAccuracy( _ufo->getRules()->getAccuracy() );
+	p->setDamage( _ufo->getRules()->getWeaponPower() );
 	p->setDirection(D_DOWN);
 	p->setHorizontalPosition(HP_CENTER);
 	p->setPosition(_currentDist - (_ufo->getRules()->getRadius() / 2));
@@ -1510,25 +1513,34 @@ void DogfightState::btnDisengagePress(Action *)
 	}
 }
 
+
+
 /**
  * Shows a front view of the UFO.
  * @param action Pointer to an action.
  */
 void DogfightState::btnUfoClick(Action *)
 {
-	_preview->setVisible(true);
-	// Disable all other buttons to prevent misclicks
-	_btnStandoff->setVisible(false);
-	_btnCautious->setVisible(false);
-	_btnStandard->setVisible(false);
-	_btnAggressive->setVisible(false);
-	_btnDisengage->setVisible(false);
-	_btnUfo->setVisible(false);
-	_btnMinimize->setVisible(false);
-	for (int i = 0; i < _weaponNum; ++i)
+	// research is completed we can click UFO PREVIEW
+	if( _game->getSavedGame()->isResearched( _ufo->getRules()->getRequirements() ) || _currentDist <= VISUAL_MAX_RANGE * 8 )
 	{
-		_weapon[i]->setVisible(false);
+		_preview->setVisible(true);
+		// Disable all other buttons to prevent misclicks
+		_btnStandoff->setVisible(false);
+		_btnCautious->setVisible(false);
+		_btnStandard->setVisible(false);
+		_btnAggressive->setVisible(false);
+		_btnDisengage->setVisible(false);
+		_btnUfo->setVisible(false);
+		_btnMinimize->setVisible(false);
+		for (int i = 0; i < _weaponNum; ++i)
+		{
+			_weapon[i]->setVisible(false);
+		}
 	}
+	else
+		setStatus("STR_UNKNOWN_UFO");
+
 }
 
 /**
