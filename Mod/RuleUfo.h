@@ -60,6 +60,7 @@ class RuleUfo
 private:
 	std::string _type, _size;
 	int _sprite, _marker;
+	int _markerFly, _markerCrash, _markerLand;
 	int _power, _range, _score, _reload, _breakOffTime, _missionScore;
 	int _fireSound;
 	int _accuracy;
@@ -112,6 +113,11 @@ public:
 
 	int getAccuracy() const;
 	const std::vector<std::string> &getRequirements() const;
+
+	/// Gets the UFO's globe marker.
+	int getMarkerFly() const;
+	int getMarkerLand() const;
+	int getMarkerCrashed() const;
 };
 
 }

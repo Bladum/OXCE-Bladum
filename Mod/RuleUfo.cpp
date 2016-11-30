@@ -32,6 +32,7 @@ RuleUfo::RuleUfo(const std::string &type) :
 	_type(type), _size("STR_VERY_SMALL"), _sprite(-1), _marker(-1),
 	_power(0), _range(0), _score(0), _reload(0), _breakOffTime(0), _missionScore(1),
 	_fireSound(-1), _accuracy(60),  
+	_markerCrash(4), _markerFly(2), _markerLand(3),
 	_battlescapeTerrainData(0), _stats(), _statsRaceBonus()
 {
 	_stats.sightRange = 268;
@@ -61,6 +62,9 @@ void RuleUfo::load(const YAML::Node &node, Mod *mod)
 	_size = node["size"].as<std::string>(_size);
 	_sprite = node["sprite"].as<int>(_sprite);
 	_marker = node["marker"].as<int>(_marker);
+	_markerFly = node["markerFly"].as<int>(_markerFly);
+	_markerLand = node["markerLand"].as<int>(_markerLand);
+	_markerCrash = node["markerCrash"].as<int>(_markerCrash);
 	_power = node["power"].as<int>(_power);
 	_accuracy = node["accuracy"].as<int>(_accuracy);
 	_requires = node["requires"].as< std::vector<std::string> >(_requires);
@@ -163,6 +167,19 @@ int RuleUfo::getMarker() const
 	return _marker;
 }
 
+/// Gets the UFO's globe marker.
+int RuleUfo::getMarkerFly() const
+{
+	return _markerFly;
+}
+int RuleUfo::getMarkerLand() const
+{
+	return _markerLand;
+}
+int RuleUfo::getMarkerCrashed() const
+{
+	return _markerCrash;
+}
 /**
  * Gets the maximum damage done by the
  * UFO's weapons per shot.
